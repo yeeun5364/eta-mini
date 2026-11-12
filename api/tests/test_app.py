@@ -19,6 +19,44 @@ def test_health_returns_ok_and_model_name():
     assert isinstance(body["model"], str) and body["model"]
 
 
+# ---------- / (소개 페이지) ----------
+
+def test_index_returns_html():
+    """GET / 는 200 과 text/html 소개 페이지를 돌려준다."""
+    res = client.get("/")
+    assert res.status_code == 200
+    assert res.headers["content-type"].startswith("text/html")
+    assert "<html" in res.text.lower()
+
+
+def test_index_describes_endpoints():
+    """소개 페이지는 /health, /eta 엔드포인트와 /docs 링크를 안내한다."""
+    text = client.get("/").text
+    assert "/health" in text
+    assert "/eta" in text
+    assert 'href="/docs"' in text
+
+
+def test_index_shows_current_model_without_placeholder():
+    """소개 페이지에 현재 구현체 이름이 들어가고 치환용 자리표시자는 남지 않는다."""
+    text = client.get("/").text
+    model = client.get("/health").json()["model"]
+    assert model in text
+    assert "__MODEL_IMPL__" not in text
+
+
+def test_index_not_in_openapi_schema():
+    """/ 는 사람용 페이지이므로 OpenAPI 스키마에 나오지 않는다."""
+    paths = client.get("/openapi.json").json()["paths"]
+    assert "/" not in paths
+    assert {"/health", "/eta"} <= set(paths)
+
+
+def test_index_post_method_not_allowed():
+    """/ 는 GET 전용이므로 POST 는 405 를 돌려준다."""
+    assert client.post("/").status_code == 405
+
+
 # ---------- /eta: 정상 입력 ----------
 
 @pytest.mark.parametrize(

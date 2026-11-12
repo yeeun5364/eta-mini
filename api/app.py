@@ -1,6 +1,10 @@
+import html
 import importlib
 import os
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 MODEL_IMPL = os.getenv("MODEL_IMPL", "rule")
@@ -18,6 +22,17 @@ class EtaResponse(BaseModel):
     model: str  # 어떤 구현체가 낸 예측인지 (장애 추적용)
 
 app = FastAPI(title="delivery-eta")
+
+INDEX_HTML = (
+    (Path(__file__).parent / "templates" / "index.html")
+    .read_text(encoding="utf-8")
+    .replace("__MODEL_IMPL__", html.escape(MODEL_IMPL))
+)
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def index() -> str:
+    """API 소개 페이지(HTML)를 돌려준다."""
+    return INDEX_HTML
 
 @app.get("/health")
 def health() -> dict[str, str]:

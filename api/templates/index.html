@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>delivery-eta API</title>
+  <style>
+    :root {
+      --bg: #f7f7f5; --card: #ffffff; --text: #1d1d1f; --muted: #6b6b70;
+      --line: #e4e4e0; --accent: #2f6fde; --code-bg: #f0f0ec;
+      --get: #1f8a4c; --post: #c26a00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141416; --card: #1d1d20; --text: #ececf0; --muted: #9a9aa2;
+        --line: #2e2e33; --accent: #6b9bff; --code-bg: #26262b;
+        --get: #4cc583; --post: #f0a046;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+    h1 { font-size: 2rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+    h2 { font-size: 1.15rem; margin: 40px 0 12px; }
+    p { margin: 0 0 12px; }
+    .lead { color: var(--muted); margin-bottom: 20px; }
+    .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      font-size: 0.8rem; padding: 2px 10px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    }
+    .badge b { color: var(--text); font-weight: 600; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px 18px; margin-bottom: 12px;
+    }
+    .route { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .method {
+      font: 600 0.75rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      padding: 4px 8px; border-radius: 6px; color: #fff;
+    }
+    .method.get { background: var(--get); }
+    .method.post { background: var(--post); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.875rem; }
+    code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; }
+    pre {
+      background: var(--code-bg); padding: 12px 14px; border-radius: 8px;
+      overflow-x: auto; margin: 8px 0 0; white-space: pre;
+    }
+    .route code { background: none; padding: 0; font-size: 1rem; font-weight: 600; }
+    .desc { color: var(--muted); margin: 0; }
+    form { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+    label { display: flex; flex-direction: column; font-size: 0.85rem; color: var(--muted); gap: 4px; }
+    input {
+      width: 140px; padding: 8px 10px; font: inherit; color: var(--text);
+      background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+    }
+    button {
+      padding: 9px 16px; font: inherit; font-weight: 600; color: #fff;
+      background: var(--accent); border: 0; border-radius: 8px; cursor: pointer;
+    }
+    #result { margin-top: 12px; min-height: 1.6em; }
+    #result strong { font-size: 1.4rem; }
+    a { color: var(--accent); }
+    footer { margin-top: 48px; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🛵 delivery-eta API</h1>
+  <p class="lead">가게에서 배달지까지의 거리와 밀려 있는 주문 수로 배달 예상 시간(분)을 알려 주는 API 입니다.</p>
+  <div class="badges">
+    <span class="badge">model <b>__MODEL_IMPL__</b></span>
+    <span class="badge">FastAPI</span>
+  </div>
+
+  <h2>엔드포인트</h2>
+
+  <div class="card">
+    <div class="route"><span class="method get">GET</span><code>/health</code></div>
+    <p class="desc">서비스 상태와 현재 쓰고 있는 예측 구현체 이름을 돌려줍니다.</p>
+    <pre>{"status": "ok", "model": "__MODEL_IMPL__"}</pre>
+  </div>
+
+  <div class="card">
+    <div class="route"><span class="method post">POST</span><code>/eta</code></div>
+    <p class="desc">배달 예상 시간을 계산합니다. 두 값 모두 0 이상이어야 하며, 아니면 422 를 돌려줍니다.</p>
+    <pre>curl -X POST /eta \
+  -H "Content-Type: application/json" \
+  -d '{"distance_km": 2.5, "pending_orders": 3}'
+
+→ {"minutes": 23.5, "model": "__MODEL_IMPL__"}</pre>
+  </div>
+
+  <h2>직접 해 보기</h2>
+  <div class="card">
+    <form id="eta-form">
+      <label>거리 (km)<input name="distance_km" type="number" min="0" step="0.1" value="2.5" required></label>
+      <label>대기 주문 (건)<input name="pending_orders" type="number" min="0" step="1" value="3" required></label>
+      <button type="submit">예상 시간 계산</button>
+    </form>
+    <div id="result" aria-live="polite"></div>
+  </div>
+
+  <h2>문서</h2>
+  <p>요청·응답 스키마는 <a href="/docs">Swagger UI (/docs)</a> 또는 <a href="/redoc">ReDoc (/redoc)</a> 에서 볼 수 있습니다.</p>
+
+  <footer>기준선 규칙: 10분 + 1km 당 3분 + 대기 주문 1건당 2분</footer>
+</main>
+<script>
+  const form = document.getElementById("eta-form");
+  const result = document.getElementById("result");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    result.textContent = "계산 중…";
+    try {
+      const res = await fetch("/eta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          distance_km: Number(data.get("distance_km")),
+          pending_orders: Number(data.get("pending_orders")),
+        }),
+      });
+      const body = await res.json();
+      if (res.ok) {
+        result.innerHTML = "";
+        const strong = document.createElement("strong");
+        strong.textContent = body.minutes + "분";
+        result.append("예상 시간: ", strong, " (model: " + body.model + ")");
+      } else {
+        result.textContent = "입력을 확인해 주세요 (HTTP " + res.status + ")";
+      }
+    } catch (err) {
+      result.textContent = "요청에 실패했습니다: " + err;
+    }
+  });
+</script>
+</body>
+</html>
