@@ -324,12 +324,10 @@ dev = [
     { name = "httpx2" },
     { name = "pytest" },
 ]
-tain = [
+train = [
     { name = "onnx" },
     { name = "onnxscript" },
     { name = "skl2onnx" },
-]
-train = [
     { name = "torch", version = "2.15.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
 ]
@@ -349,12 +347,12 @@ dev = [
     { name = "httpx2", specifier = ">=2.16.0" },
     { name = "pytest", specifier = ">=9.2.0" },
 ]
-tain = [
+train = [
     { name = "onnx", specifier = ">=1.23.2" },
     { name = "onnxscript", specifier = ">=0.7.2" },
     { name = "skl2onnx", specifier = ">=1.20.0" },
+    { name = "torch", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu" },
 ]
-train = [{ name = "torch", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu" }]
 
 [[package]]
 name = "mpmath"
