@@ -1,0 +1,22 @@
+[package]
+name = "eta-api"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+# load-dynamic: ONNX Runtime 공유 라이브러리를 실행 시점에 ORT_LIB 경로에서 읽는다.
+# 기본 기능(download-binaries 등)을 끄므로 빌드 중에 런타임을 내려받지 않는다.
+ort = { version = "=2.0.0-rc.15", default-features = false, features = ["std", "load-dynamic", "api-31"] }
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
+[profile.release]
+strip = true
+lto = true
